@@ -1,7 +1,5 @@
-<h1>Algorithm analysis</h1>
-[toc]   
+[toc]
 ---
-
 # 第2章 算法分析
 ## 2.1 数学基础
 全书将使用下面四个定义 
@@ -133,5 +131,60 @@ MaxSubsequenceSum(const int A[], int N)
 ## 2.4 运行时间中的对数
 某些分治算法将以$O\left( {\log N} \right)$时间运行。除了分治算法，可将对数最常见的规律概括为下列一般法则：如果一个算法用常数时间（$O\left( 1 \right)$）将问题的大小削减为其一部分，那么该算法就是$O\left( {\log N} \right)$。另一方面，如果使用常数时间只是把问题减少一个常数，那么这种算法就是$O\left( N \right)$.
 ### 2.4.1 对分查找（Binary search）
-给定一个整数$X$和整数$A_0,A_1,A_2,...,A_{N-1}$，后者已经预算排序并在内存中， 求使得$A_i=X$的夏标$i$
+给定一个整数$X$和整数$A_0,A_1,A_2,...,A_{N-1}$，后者已经预先排序并在内存中， 求使得$A_i=X$的下标$i$，如果$X$不在数据中，则返回$i=-1$.
+```
+int
+BinarySearch(const ElementType A[], ElementType X, int N)
+{    
+    int Low, Mid, High;
+    Low = 0; High = N - 1;
+    while(Low <= High)
+    {
+        Mid = (Low + High) / 2;
+        if(A[Mid] < X)
+            Low = Mid + 1;
+        else if(A[Mid] > X)
+            High = Mid - 1;
+        else
+            return Mid; /* Found */
+    }
+    return NotFound; /* NotFound is defined as -1 */
+}
+```
+### 2.4.2 欧几里得算法（计算最大公因数）
+两个整数的最大公因数（Gcd）是同事整除二者的最大整数，下面算法计算$Gcd(M,N)$，假设$M \geqslant N$（如果，则循环第一次迭代将他们互换$M < N$）.
+```
+/*M >= N*/
+unsigned int
+Gcd(unsigned int M, unsigned int N)
+{
+    unsigned int Rem;
+    
+    while(N > 0)
+    {
+        Rem = M % N;
+        M = N;
+        N = Rem;
+    }    
+    
+    return M;
+}
+```
+### 2.4.3 幂运算
+计算${X^N}$的常见算法是使用$N-1$次乘法自乘，但是下面分奇数偶数的方式进行乘法运算可以大大减少乘法次数。如果$N$是偶数，我们有${X^N} = {X^{N/2}} \cdot {X^{N/2}}$；如果$N$是奇数，则${X^N} = {X^{\left( {N - 1} \right)/2}} \cdot {X^{\left( {N - 1} \right)/2}} \cdot X$
+```
+long int
+Pow(long int X, unsigned int N)
+{
+    if(N == 0)
+        return 1;
+    if(N == 1)
+        return X;
+    if(IsEven(N))
+        return Pow(X * X, N/2);
+    else
+        return Pow(X, N/2) * X;
+}
+```
 
+http://92a0e3fd.wiz03.com/share/s/2iEefZ0AykZ72FodI33SYoDJ0-yJpA1cqk9V2qif7817b6Nr
