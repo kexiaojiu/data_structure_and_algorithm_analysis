@@ -45,7 +45,7 @@ struct Node
     Position Next;
 }
 ```
-* 使得表为空
+* MakeEmpty函数使得表为空
 ```
 #include <List.h>
 
@@ -57,7 +57,7 @@ MakeEmpty(List L)
     return L;
 }
 ```
-* 测试空表函数
+* IsEmpty函数测试空表
 ```
 #include <List.h>
 
@@ -68,7 +68,7 @@ IsEmpty(List L)
     return L->Next == NULL;
 }
 ```
-* 测试当前元素是否是表的最后一个元素
+* IsLast函数测试当前元素是否是表的最后一个元素
 ```
 #include <List.h>
 
@@ -95,6 +95,200 @@ Find(ElementType X, List L)
         P = P->Next;
     return P;
 }
+```
+* FindPrevious函数找出含有X元素的表元的前驱元$P$
+```
+#include <List.h>
+
+/* If X is not found, then Next field of returned position is NULL */
+/* Assumes a header */
+
+Position 
+FindPrivious(ElementType X, List L)
+{
+    Position P;
+    
+    P = L;
+    while(P->Next != NULL && P->Next->Element != X)
+        P = P->Next;
+    return P;
+}
+```
+* Delete函数删除表L中的某个元素X，只删除第一次出现的X，如果X不在表中就什么都不做
+```
+#include <List.h>
+
+/* Delete first occurrence of X from a list */
+/* Assume use of a header node */
+void 
+Delete(ElementType X, List L)
+{
+    Position P, TemCell;
+    
+    P = FindPrevious(X, L);
+    
+    if(!(IsLast(P, L))) /* Assumption of header use X if found, delete it */
+    {
+        TemCell = P->Next;
+        P->Next = TemCell->Next; /* Bypass deleted cell */
+        free(TemCell);    
+    }
+}
+```
+* Insert插入函数，将要插入的元素与表L和位置P一起传入
+```
+#include <List.h>
+
+/* Insert(after legal position P) */
+/* Header implemention assumed */
+/* Parameter L is unused in this implementation */
+void 
+Insert(ElementType X, List L, Position P)
+{
+    Position TmpCell;
+    
+    TmpCell = malloc(sizeof(struct Node));
+    if(TmpCell == NULL)
+        FatalError("Out of space!!!")
+    
+    TmpCell->Element = X;
+    TpmCell->Next = P->Next;
+    P->Next = TmpCell 
+}
+```
+* DeleteList删除链表
+```
+#include <List.h>
+
+/* Delete List */
+
+void
+DeleteList(List L)
+{
+    Position P, Tmp;
+    
+    P = L->Next; /* Header assumed */
+    L->Next = NULL;
+    while(P != NULL)
+    {
+        Tmp = P->Next;
+        free(P);
+        P = Tmp;    
+    }
+}
+```
+### 3.2.4 常见错误
+* memory access violation或segmentation violation通常意味着有指针变量包含了伪地址。**无论何时只要确定一个指向，那么就必须保证该指针不是NULL**
+* 涉及何时使用或者何时不使用malloc来获取一个新的单元.
+### 3.2.5 双链表（doubly linked list）
+下表是一个双链表
+<center>![003](https://imgur.com/765yWxU.png)</center>
+### 3.2.6 循环链表
+下表是一个循环链表
+<center>![004](https://imgur.com/CK3P420.png)</center>
+### 3.2.7 例子
+#### 3.2.7.1 多项式ADT
+令$F\left( X \right) = \sum\nolimits_{i = 0}^N {{A_i}{X^i}} $，令大部分系数非零，那么我们可以用一个简单数组来存储这些系数，然后可以编写一些对多项式进行加、减、乘、微分以及其他操作的例程。
+* 多项式ADT的数组实现的类型声明
+```
+typedef struct
+{
+    int CoeffArray[MaxDegree + 1];
+    int HighPower;
+} * Polynomial;
+```
+* 将多项式初始化为零的过程
+```
+#include <Polynomial.h>
+
+void
+ZeroPolynomial(Polynomial Poly)
+{
+    int i;
+    
+    for(i = 0; i <= MaxDegree; i++)
+        Poly->CoeffArray[i] = 0;
+    Poly->HighPower = 0;
+}
+```
+* 两个多项式相加
+```
+#include <Polynomail.h>
+
+void
+AddPolynomial(const Polynomial Poly1, const Polynomial Poly2, Polynomial PolySum)
+{
+    int i;
+    ZeroPolynomial(PolySum);
+    
+    PolySum->HighPower = Max(Poly1->HighPower, Poly2->HighPower);
+    
+    for(i = PolySum->HighPower; i >= 0; i--)
+    {
+        PolySum->CoeffArray[i] = Poly1->CoeffArray[i] + Poly2->CoeffArray[i];
+    }    
+}
+```
+* 两个多项式相乘
+```
+#include <Polynomail.h>
+
+void
+MultPolynomial(const Polynomial Poly1, const Polynomial Poly2, Polynomial PolyProd)
+{
+    int i, j;
+    ZeroPolynomial(PolyProd);
+    
+    PolyProd->HighPower = Poly1->HighPower + Poly2->HighPower;
+    
+    if(PolyProd->HighPower > MaxDegree)
+        Error("Exceeded array size.");
+    else
+        for(i = 0; i < Poly1->HighPower; i++)
+            for(j = 0; j <Poly2->HighPower; j++)
+                PolyProd->CoeffArray[i + j] += Poly1->CoeffArray[i] * Poly2->CoeffArray[j]; 
+}
+```
+#### 3.2.7.2 基数排序（radix sort）
+如果我们有$N$个整数，范围从1到$M$（或者从0到$M-1$），我们可以利用这个信息得到一个快速的排序，叫做桶排序（bucket sort）。我们留置一个数组，称之为Count，大小为$M$，并初始化为零。于是，Count有$M$个单元或者桶，开始都是空的。当$A_i$被读入时候，Count[$A_i$]增加1。在所有的输入被读进去以后，扫描数组Count，打印输出排好序的表。该算法花费$O(M+N)$。如果$M = \Theta (N)$，则桶式排序为$O(N)$。
+#### 3.2.7.3 多重表
+假设大学有40000名学生和2500门课程，需要生成两类报告，一类是列出每个班的注册者，一类是列出每个学生注册的班级。如果用二维数组实现，则需要1亿项数据，平均每个学生注册三门课程，有效数据只有120000项，大约占0.1%。下面是注册问题的多重表实现。
+<center>![005](https://imgur.com/dDxFWLu.png)</center>
+
+### 3.2.8 链表的游标实现
+如果需要链表但是不能使用指针，那么可以使用游标(cursor)。
+* 链表游标的实现声明
+```
+#ifndef _Cursor_H
+
+typedef int PtrToNode;
+typedef PtrToNode List;
+typedef PtrToNode Position;
+
+void InitializeCursorSpace(void);
+
+List MakeEmpty(List L);
+int IsEmpty(List L);
+int IsLast(Position P, List L);
+Position Find(ElementType X, List L);
+void Delete(ElementType x, List L);
+Position FindPrevious(ElementType x, List L);
+void Insert(ElementType x, List L, Position P);
+void DeleteList(List L);
+Position Header(List L);
+Position First(List L);
+Position Advance(Position P);
+ElementType Retrieve(Position P);
+
+#endif /* _Cursor_H */
+
+struct Node
+{
+    ElementType Element;
+    Position Next;
+};
+
+struct Node CursorSpace[SpaceSize];
 ```
 
 ---
