@@ -290,10 +290,118 @@ struct Node
 
 struct Node CursorSpace[SpaceSize];
 ```
+* CursorAlloc和CursorFree
+```
+#include <Cursor.h>
 
+static Position
+CursorAlloc(void)
+{
+    Position P;
+    
+    P = CursorSpace[0].Next;
+    CursorSpace[0].Next = CursorSpace[P].Next;
+    
+    return P;    
+}
+
+static void
+CursorFree(Position P)
+{
+    CursorSpace[P].Next = CursorSpace[0].Next;
+    CursorSpace[P].Next = P;    
+}
+```
+* IsEmpty函数测试一个链表是否为空函数-游标实现
+```
+#include <Cursor.h>
+
+/* Return true if L is empty */
+int
+IsEmpty(List L)
+{
+    return CursorSpace[L].Next == 0;
+}
+```
+* IsLast测试P是否是链表的末尾的函数---游标实现
+```
+#include <Cursor.h>
+
+/* Return true if P is the last position in list L */
+/* Parameter L is unused in this implementation */
+int
+IsLast(Position P, List L)
+{
+    return CursorSpace[P].Next == 0；
+}
+```
+* Find---游标实现
+```
+#include <Cursor.h>
+
+/* Return Position of X in L; 0 if not found */
+/* Uses a header node */
+
+Position
+Find(ElementType X, List L)
+{
+    Position P;
+    
+    P = CursorSpace[L].Next;
+    while(P && CursorSpace[P].Element != X)
+        P = CursorSpace[P].Next;
+        
+    return P;
+}
+```
+* Delete删除链表---游标实现
+```
+#include <Cursor.h>
+
+/* Delete first occurrence of X from a list */
+/* Assume use of a header node */
+void
+Delete(ElementType X, List L)
+{
+    Position P. TmpCell;
+    
+    P = FindPrevious(X, L);
+    
+    if(!IsLast(P, L))
+    {
+        TmpCell = CursorSpace[P].Next；
+        CursorSpace[P].Next = CursorSpace[TmpCell].Next;
+        CursorFree(TmpCell);    
+    }    
+}
+```
+* Insert插入操作---游标实现
+```
+#include <Cursor.h>
+
+/* Insert (after legal position P) */
+/* Header implementation assumed */
+/* Parameter L is unused in this implementation */
+void
+Insert(ElementType X, List L, Position P)
+{
+    Position TmpCell;
+    
+    TmpCell = CursorAlloc();
+    if(TmpCell == 0)
+        FatalError("Out of space!!!")
+    
+    CursorSpace[TmpCell].Element = X;
+    CursorSpace[TmpCell].Next = CursorSpace[P].Next;
+    CursorSpace[P].Next = TmpCell;
+}
+```
 ---
 ## 3.3 栈ADT
+### 3.3.1 栈模型
 
+### 3.3.2 栈的实现
+### 3.3.3 应用
 ---
 
 ## 3.4 队列ADT
