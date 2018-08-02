@@ -399,8 +399,125 @@ Insert(ElementType X, List L, Position P)
 ---
 ## 3.3 栈ADT
 ### 3.3.1 栈模型
-
+栈（stack）是限制插入和删除只能在一个位置上进行的表，该位置是表的末端，叫做栈的顶（top）。对栈的基本操作有Push（进栈）和Pop（出栈）。最后插入的元素可以通过使用Top例程在执行Pop之前进行考查。对空栈进行Pop或者Top一般认为是栈ADT的错误。当运行Push时空间用尽是一个实现错误，但不是ADT错误。
+<center>![006](https://imgur.com/kQSbBdN.png)</center>
+<center>栈模型：通过Push向栈输入，通过Pop从栈输出</center>
 ### 3.3.2 栈的实现
+#### 3.3.2.1 栈的链表实现
+* 栈ADT链表实现的类型声明
+```
+#ifndef _Stack_h
+struct Node;
+typedef struct Node *PtrToNode;
+typedef PtrToNode Stack;
+
+int IsEmpty(Stack S);
+Stack CreateStack(void);
+void DisposeStack(Stack S);
+void MakeEmpty(Stack S);
+void Push(ElementType X, Stack S);
+ElementType Top(Stack S);
+void Pop(Stack S);
+
+#endif /* _Stack_h*/
+
+/*Stack implementation is a linked list with a header */
+struct Node
+{
+    ElementType Element;
+    PtrToNode Next;    
+};
+```
+* 测试栈是否空栈的例程---链表实现
+```
+#include <Stack.h>
+int
+IsEmpty(Stack S)
+{
+    return S->Next == NULL;    
+}
+```
+* 创建一个空栈的例程---链表实现
+```
+#include <Stack.h>
+
+Stack
+CreateStack(void)
+{
+    Stack S;
+    
+    S = malloc(sizeof(struct Node));
+    if(NULL == S)
+        FatalError("Out of space!!!");
+    S->Next = NULL;
+    MakeEmpty(S);
+    return S;
+}
+
+void
+MakeEmpty(Stack S)
+{
+    if(NULL == S)
+        Error("Must use Create first");
+    else
+        while(!IsEmpty(S))
+            Pop(S);
+}
+```
+* Push进栈的例程---链表实现
+```
+#include <Stack.h>
+
+void 
+Push(ElementType X, Stack S)
+{
+    PtrToNode TmpCell;
+    
+    TmpCell = malloc(sizeof(struct Node));
+    if(NULL == TmpCell)
+        FatalError("Out of space!!!");
+    else
+    {
+        TmpCell->Element = X;
+        TmpCell->Next = S->Next;
+        S->Next = TmpCell;
+    }
+}
+```
+* 返回栈顶元素的例程--- 链表实现
+```
+#include <Stack.h>
+
+ElementType
+Top(Stack S)
+{
+    if(!IsEmpty(S))
+        return S->Next->Element;
+    Error("Empty Stack");
+    return 0; /* Return value used to avoid warning */
+}
+```
+* 从栈弹出元素的例程---链表实现
+```
+#include <Stack.h>
+
+void
+Pop(Stack S)
+{
+    PtrToNode FirstCell;
+    
+    if(IsEmpty(S))
+        Error("Empty stack");
+    else
+    {
+        FirstCell = S->Next;
+        S->Next = FirstCell->Next;
+        free(FirstCell);
+    }
+}
+```
+#### 3.3.2.2 栈的数组实现
+
 ### 3.3.3 应用
 ---
 
