@@ -517,7 +517,141 @@ Pop(Stack S)
 }
 ```
 #### 3.3.2.2 栈的数组实现
+* 栈的声明---数组实现
+```
+#ifndef _Stack_h
+struct StackRecord;
+typedef StackRecord Stack;
 
+int IsEmpty(Stack S);
+int IsFull(Stack S);
+Stack CreateStack(int MaxElements);
+void DisposeStack(Stack S);
+void MakeEmpty(Stack S);
+void Push(ElementType X, Stack S);
+ElementType Top(Stack S);
+void Pop(Stack S);
+ElementType TopAndPop(Stack S);
+
+#endif /* _Stack_h*/
+
+/* Stack implementation is a dynamically allocated array */
+#define EmptyTOS (-1)
+#define MinStackSize (5)
+
+struct StackRecord
+{
+    int Capacity;
+    int TopOfStack;
+    Element *Array;    
+};
+```
+* 栈的创建---数组实现
+```
+#include <Stack.h>
+
+StackCreateStack(int MaxElements)
+{
+    Stack S;
+    
+    if(MaxElements < MinStackSize)
+        Error("Stack size is too small.");
+    
+    S = malloc(sizeof(struct StackRecord));
+    if(NULL == S)
+        FatalError("Out of Space!");
+    S->Capacity = MaxElements;
+    MakeEmpty(S);
+    
+    return S;
+}
+```
+* 释放栈的例程---数组实现
+```
+#include <Stack.h>
+
+void
+DisposeStack(Stack S)
+{
+    if(NULL != S)
+    {
+        free(S->Array);
+        free(S);
+    }
+}
+```
+* 检测一个栈是否空栈的例程---数组实现
+```
+#include <Stack.h>
+
+int
+IsEmpty(Stack S)
+{
+    return S->TopOfStack == EmptyTOS;
+}
+```
+* 创建一个空栈的例程---数组实现
+```
+#include <Stack.h>
+
+void
+MakeEmpty(Stack S)
+{
+    S->TopOfStack = EmptyTOS;
+}
+```
+* 进栈的例程---数组实现
+```
+#include <Stack.h>
+
+void 
+Push(ElementType X, Stack S)
+{
+    if(IsFull(S))
+        Error("Full stack");
+    else
+        S->Array[++S->TopOfStack] = X;
+}
+```
+* 将栈顶返回的例程---数组实现
+```
+#include <Stack.h>
+
+ElementType
+Top(Stack S)
+{
+    if(!IsEmpty(S))
+        return S->Array[S->TopOfStack];
+    Error("Empty stack");
+    return 0;
+}
+```
+* 从栈弹出元素的例程---数组实现
+```
+#include <Stack.h>
+
+void
+Pop(Stack S)
+{
+    if(IsEmpty(S))
+        Error("Empty stack");
+    else
+        S->TopOfStack--;
+}
+```
+* 给出栈顶元素并从栈弹出的例程---数组实现
+```
+#include <Stack.h>
+
+ElementType
+TopAndPop(Stack S)
+{
+    if(!IsEmpty(S))
+        return S->Array[S->TopOfStack--];
+    Error("Empty stack");
+    return 0;
+}
+```
 ### 3.3.3 应用
 ---
 
